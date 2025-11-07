@@ -14,13 +14,18 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: docker login
+    
+    # ⭐ 수정된 부분: 비밀번호를 'echo'와 파이프(|)를 통해 표준 입력으로 전달합니다. ⭐
+    - name: Docker Login
       env:
         DOCKER_USER: ${{secrets.DOCKER_USER}}
         DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
       run: |
-        docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+        echo "${{secrets.DOCKER_PASSWORD}}" | docker login -u ${{secrets.DOCKER_USER}} --password-stdin
+        
     - name: Build the Docker image
+      # DOCKER_USER 변수를 사용하는 대신 secrets를 직접 참조하여 일관성을 유지했습니다.
       run: docker build --tag ${{secrets.DOCKER_USER}}/hangman:latest .
-    - name: docker push
+      
+    - name: Docker Push
       run: docker push ${{secrets.DOCKER_USER}}/hangman:latest
